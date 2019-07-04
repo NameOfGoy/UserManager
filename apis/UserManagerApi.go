@@ -14,6 +14,7 @@ import(
 	"UserManager/util/check"
 	e "UserManager/util/myerror"
 	"encoding/json"
+	"log"
 )
 
 func Index(c *gin.Context) {
@@ -69,6 +70,8 @@ func UserRegister(c *gin.Context) {
 		Phonenum :	registinfo.PhoneNum,
 	}
 	// 插2张表，事务操作，使用存储过程
+	log.Println(user)
+	log.Println(userinfo)
 	err = models.RegistProcedure(&user,&userinfo)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
@@ -216,6 +219,156 @@ func generateToken(c *gin.Context, user models.User) (token string,err error){
     return
 }
 
+func ModifyPassword(c *gin.Context){
+	//检查token是否合法
+	claims,err := check.CheckToken(c)
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+
+	oldnewpassword := struct {
+		Oldpassword string  `json:"oldpassword"`
+    	Newpassword string 	`json:"newpassword"`
+	}{}
+	err = c.ShouldBind(&oldnewpassword)
+	if  err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : &e.Myerror{
+				Code : e.ERROR_JSONBIND_FAILED_CODE,
+				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
+			},
+		})
+		return
+	}
+	// 从数据库中取出用户密码，并且对比，正确就更新旧密码
+	user := models.User{
+		Loginid : claims.ID,
+	}
+	user,err = user.GetUser()
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	log.Println(user)
+	if user.Password != oldnewpassword.Oldpassword {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : &e.Myerror{
+				Code : e.ERROR_USER_WRONGPASSWORD_CODE,
+				Message : e.ERROR_USER_WRONGPASSWORD_MESSAGE,
+			},
+		})
+		return
+	}
+	user.Password = oldnewpassword.Newpassword
+	err = user.UpdateUser()  //更新
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	// 成功
+	c.JSON(http.StatusOK,gin.H{
+		"response" : &models.ResponseSet{
+			Code : 1,
+			Message : "密码修改成功",
+		},
+	})
+}
+
+func ModifyUserinfo(c *gin.Context){
+	//检查token是否合法
+	claims,err := check.CheckToken(c)
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	userinfo := models.Userinfo{}
+	err = c.ShouldBind(&userinfo)
+	if  err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : &e.Myerror{
+				Code : e.ERROR_JSONBIND_FAILED_CODE,
+				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
+			},
+		})
+		return
+	}
+	//根据token存储的登陆账号，获取该账号对应的userid，然后根据userid更新表
+	user := models.User{
+		Loginid : claims.ID,
+	}
+	user,err = user.GetUser()
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	userinfo.Userid = user.Userid
+	log.Println(userinfo)
+	err = userinfo.ModifyUserinfo()
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	// 成功
+	c.JSON(http.StatusOK,gin.H{
+		"response" : &models.ResponseSet{
+			Code : 1,
+			Message : "修改成功",
+		},
+	})
+}
+
+func GetUserinfo(c *gin.Context) {
+	//检查token是否合法
+	claims,err := check.CheckToken(c)
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	// 根据token的loginid找到userid
+	user := models.User{
+		Loginid : claims.ID,
+	}
+	user,err = user.GetUser()
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	userinfo := models.Userinfo{
+		Userid : user.Userid,
+	}
+	userinfo,err = userinfo.GetUserinfo()
+	if err != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"err" : err,
+		})
+		return
+	}
+	// 成功
+	c.JSON(http.StatusOK,gin.H{
+		"response" : &models.ResponseSet{
+			Code : 1,
+			Message : "获取用户信息成功",
+			Data : &userinfo,
+		},
+	})
+}
 
 //
 func GetUser(c *gin.Context) {

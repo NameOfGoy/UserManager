@@ -18,6 +18,11 @@ const ERROR_INSERT_REDIS_KEY_MESSAGE string = "Redis插入key值失败"
 const ERROR_DELETE_REDIS_KEY_CODE int = 50004
 const ERROR_DELETE_REDIS_KEY_MESSAGE string = "Redis删除key值失败"
 
+const ERROR_UPDATE_TABLE_CODE int = 50005
+const ERROR_UPDATE_TABLE_MESSAGE string = "数据库表更新失败"
+
+const ERROR_SELECT_NOTFOUND_CODE int = 50006
+const ERROR_SELECT_NOTFOUND_MESSAGE string = "查询结果不存在"
 
 /***********************用户信息管理************************************/
 const ERROR_USER_NOTFOUND_CODE int = 10001

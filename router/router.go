@@ -13,8 +13,10 @@ func InitRouter() *gin.Engine {
     router.GET("/gettoken",GetToken)
     router.GET("/ExitLogin",ExitLogin)
     router.GET("/getuser",GetUser)
+    router.POST("/ModifyPassword",ModifyPassword)
+    router.POST("/ModifyUserinfo",ModifyUserinfo)
+    router.GET("/Userinfo",GetUserinfo)
    
-
     taR := router.Group("/data")
     // 路径是/data时，会把jwt.JWTAuth()调用
     taR.Use(jwt.JWTAuth()) // router.Use是使用中间件的意思

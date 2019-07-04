@@ -5,16 +5,19 @@ import(
 	_"errors"
 	"log"
 	e "UserManager/util/myerror"
+	"time"
 )
 
 type Userinfo struct {
-	Userid   string    `xorm:"not null pk VARCHAR(100)"`
-	Username string `xorm:"VARCHAR(255)"`
-	Birthday string `xorm:"VARCHAR(255)"`
-	Sex      string `xorm:"VARCHAR(255)"`
-	Address  string `xorm:"VARCHAR(255)"`
-	Email    string `xorm:"VARCHAR(255)"`
-	Phonenum string `xorm:"VARCHAR(100)"`
+	Userid       string    `xorm:"not null pk VARCHAR(100)"`
+	Username     string    `xorm:"not null VARCHAR(255)"`
+	Birthday     string    `xorm:"VARCHAR(255)"`
+	Sex          string    `xorm:"VARCHAR(255)"`
+	Address      string    `xorm:"VARCHAR(255)"`
+	Email        string    `xorm:"VARCHAR(255)"`
+	Phonenum     string    `xorm:"VARCHAR(20)"`
+	Createtime   time.Time `xorm:"TIMESTAMP(6)"`
+	Modifiedtime time.Time `xorm:"TIMESTAMP(6)"`
 }
 
 func (u *Userinfo)AddUserinfo() (err error) {
@@ -29,11 +32,46 @@ func (u *Userinfo)AddUserinfo() (err error) {
 	return
 }
 
+func (u *Userinfo)GetUserinfo() (user Userinfo,err error){
+	has,err := db.Engine.Id(u.Userid).Get(&user)
+	if err != nil {
+		log.Println(" Userinfo表查询错误 ： ",err)
+		err = &e.Myerror{
+			Code : e.ERROR_SELECT_TABLE_CODE,
+			Message : e.ERROR_SELECT_TABLE_MESSAGE, 
+		}
+		return
+	}
+	if !has {
+		err = &e.Myerror{
+			Code : e.ERROR_SELECT_NOTFOUND_CODE,
+			Message : e.ERROR_SELECT_NOTFOUND_MESSAGE, 
+		}
+		return
+	}
+	return
+}
+
+func (u *Userinfo)ModifyUserinfo() (err error) {
+	_,err = db.Engine.Id(u.Userid).Update(u)
+	if err != nil {
+		log.Println(" Userinfo表更新错误 ： ",err)
+		err = &e.Myerror{
+			Code : e.ERROR_UPDATE_TABLE_CODE,
+			Message : e.ERROR_UPDATE_TABLE_MESSAGE,
+		}
+		return 
+	}
+	return
+}
 
 type User struct {
-	Loginid  string `xorm:"not null pk VARCHAR(20)"`
-	Password string `xorm:"VARCHAR(255)"`
-	Userid   string    `xorm:"VARCHAR(100)"`
+	Loginid              string    `xorm:"not null pk VARCHAR(20)"`
+	Password             string    `xorm:"not null VARCHAR(255)"`
+	Userid               string    `xorm:"not null VARCHAR(100)"`
+	Createtime           time.Time `xorm:"TIMESTAMP(6)"`
+	ModifiedPasswordTime time.Time `xorm:"DATETIME(6)"`
+	FormalPassword       string    `xorm:"VARCHAR(255)"`
 }
 
 func (u *User)AddUser() (err error) {
@@ -49,7 +87,6 @@ func (u *User)AddUser() (err error) {
 }
 
 func (u *User)GetUser() (user User,err error) {
-	log.Println(u)
 	ret,err := db.Engine.ID(u.Loginid).Get(&user)
 	if err != nil{
 		err = &e.Myerror{
@@ -67,11 +104,18 @@ func (u *User)GetUser() (user User,err error) {
 	return
 }
 
-type LoginInfo struct {
-	Loginid string  		`json:"loginid"`
-    Password string 		`json:"password"`
+func (u *User)UpdateUser()(err error) {
+	_, err = db.Engine.Exec("UPDATE USER SET PASSWORD = ? WHERE LOGINID = ?", u.Password, u.Loginid)
+	if err != nil {
+		log.Println(" User表更新错误 ： ",err)
+		err = &e.Myerror{
+			Code : e.ERROR_UPDATE_TABLE_CODE,
+			Message : e.ERROR_UPDATE_TABLE_MESSAGE,
+		}
+		return 
+	}
+	return
 }
-
 
 func RegistProcedure (user *User,userinfo *Userinfo) (err error) {
 	
