@@ -1,0 +1,105 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" 
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="styles/app.css" rel="stylesheet" type="text/css">
+    <link href="styles/install-button.css" rel="stylesheet" type="text/css">
+    
+    <script language="JavaScript">		
+		 
+	    function setAudio(){
+			var random = Math.random();
+			var username = '${userSession.username}';
+			var path = 'wav/'+username+'/response.wav?ranparam='+random;
+			document.getElementById('say_audio').src=path;
+			console.log("username = "+username);
+		}			
+		window.onload=function(){setAudio();}
+		</script> 
+    
+</head>
+<body>
+	<div>
+        <audio controls autoplay></audio>
+      <!--  <input class="record" onclick="startRecording()" type="button" value="录音" />
+        <input class="stop" onclick="stopRecording()" type="button" value="停止" />
+        -->  
+      <button class="record" onclick="startRecording()">Record</button>
+      <button class="stop" onclick="stopRecording()" >Stop</button>
+      <input onclick="playRecording()" type="button" value="播放" />
+ <!--      <input onclick="uploadAudio()" type="button" value="提交" /> --> 
+      <form action="<%=request.getContextPath()%>/audioHandler.action" method="post" onsubmit="uploadAudio()">
+      	<input type="submit" value="提交">
+      </form>  
+	</div>
+	
+	<br></br>
+	<br></br>
+	<br></br>
+	<br></br>
+
+	<br></br>
+		<br></br>
+		<br></br>
+		<br></br>
+		
+		<form action="<%=request.getContextPath()%>/textTalk.action" method="post">
+			<tr>  
+                <td>要提问的问题</td>  
+                <td><input type="text" name="question" ></td>  
+            </tr>
+            <br></br>
+			<br></br>
+            <input type="submit" value="提交">
+         </form>
+		
+		<br></br>
+		<br></br>
+		<br></br>
+		 ${answer}
+		<br></br>
+		播放器
+<!--  	<embed src="../test.wav" autostart=true>  -->
+	
+		<audio controls autoplay id="say_audio">		</audio>
+					
+		<br>    </br>
+		<a href="<%=request.getContextPath() %>/success.jsp">返回首页	</a>
+		
+		<br>    </br>
+	<!-- 	<a href="<%=request.getContextPath() %>/jsp/Robot.jsp">回到本页，刷新	</a>  -->
+		 <form action="<%=request.getContextPath()%>/ReflashRobot.action">
+		  	 <input type="submit" value="刷新">
+		  </form>
+		<a href="<%=request.getContextPath() %>/jsp/TestRobot.jsp">刷新	</a>
+	
+	
+	
+    <script type="text/javascript" src="jsp/HZRecorder.js"></script>
+
+    <script>
+        var recorder;
+        var audio = document.querySelector('audio');
+        function startRecording() {
+            HZRecorder.get(function (rec) {
+                recorder = rec;
+                recorder.start();
+            });
+        }
+        function stopRecording() {
+            recorder.stop();
+        }
+        function playRecording() {
+            recorder.play(audio);
+        }
+        function uploadAudio() {
+        	recorder.upload("/wGraduated/UploadVideoServlet.do", function (state, e) {               
+            });
+        }
+
+    </script>
+</body>
+</html>

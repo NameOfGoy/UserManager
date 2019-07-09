@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <style>
+        html,body {
+            width: 100%;
+            height: 100%;
+        }
+        #background {
+            width: 100%;
+            background: url("../img/bg@2x.png") no-repeat;
+            position: relative;
+        }
+        .registered-icon {
+            width: 740px;
+            height: 400px;
+            background: url("../img/login-icon.png") no-repeat;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -370px;
+            margin-top: -200px;
+        }
+        h1 {
+            font-weight: 700;
+            color: #2761A5;
+            font-family: '黑体';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -240px;
+            margin-top: 40px;
+        }
+        .registered-input {
+            width: 370px;
+            height: 400px;
+            float: right;
+            position: relative;
+        }
+        .go-login {
+            display: inline-block;
+            width: 70px;
+            height: 39px;
+            background: url("../img/go-login.png");
+            background-size: contain;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: 114px;
+            margin-top: -180px;
+            color: white;
+            text-align: center;
+            line-height: 39px;
+            cursor: pointer;
+        }
+        .registered-form {
+            width: 300px;
+            height: 200px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-top: -120px;
+            margin-left: -150px;
+        }
+        .registered-btn {
+            margin-top: 10px;
+            width: 217.5px;
+        }
+        .control-label {
+            padding: 0;
+            padding-top: 10px;
+            font-size: 14px;
+            color: white;
+        }
+        .form-control {
+            margin-top: 5px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            border: none;
+            padding-left: 10px;
+            color: white;
+        }
+        .form-size{
+	        color:#FFFFE0;
+	        font-size:18px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div id="background">
+        <div class="registered-icon">
+            <h1>欢迎注册</h1>
+            <div class="registered-input">
+                <a class="go-login" href="login.html">登录</a>
+                <form class="form-horizontal registered-form" >
+                    <div class="form-group">
+                        <label for="userAcc" class="col-sm-3 control-label">账号：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="username" id="userAcc">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPass" class="col-sm-3 control-label">密码：</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="passwd" id="userPass">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="personname" class="col-sm-3 control-label">用户名：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="personname" id="userPersonname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <button type="button" onclick="checkForm()" class="btn btn-info registered-btn">注册</button>
+                        </div>
+                    </div>
+                   <div class="form-size"></div> 
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    window.onload = function () {
+        //初始化背景图片高度
+        document.getElementById('background').style.height = document.body.clientHeight + 'px';
+
+    }
+    
+    function checkForm(){
+    	// 校验账号:
+    	// 获得账号文本框的值:
+    	var username = document.getElementById("userAcc").value;
+    	if(username == null || username == ''){
+    		alert("用户名不能为空!");
+    		return false;
+    	}
+    	// 校验密码:
+    	// 获得密码框的值:
+    	var password = document.getElementById("userPass").value;
+    	if(password == null || password == ''){
+    		alert("密码不能为空!");
+    		return false;
+    	}
+    	//校验用户名：
+    	//获得用户名框的值：
+    	var personnalname = document.getElementById("userPersonname").value;
+    	if(personnalname == null || personnalname == ''){
+    		alert("用户名不能为空!");
+    		return false;
+    	}
+		
+		regist(username,password,personnalname);
+    }
+	
+	function regist(loginid,password,username){
+		var xhr = new XMLHttpRequest();
+		xhr.open("post","http://193.112.49.177:8088/Register");
+		xhr.setRequestHeader("Content-Type","application/json;charset=UTF-8");
+		xhr.onreadystatechange = function() {//Call a function when the state changes.
+              if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {//xhr.readyState == 4等价于XMLHttpRequest.DONE
+                  // 请求结束后,在此处写处理代码
+                  var obj = JSON.parse(xhr.responseText);
+				  if (obj.response.Code != 1){
+					console.log("errcode :"+obj.response.Code);
+					alert(obj.response.Message);
+					return false;
+				  }	else if (obj.response.Code == 1) {
+					alert(obj.response.Message);
+					window.location.href="login.html";
+					return true;
+				  }
+			  }
+		}
+		
+		var data = {};
+		data["loginid"] = loginid;
+		data["password"] = password;
+		data["username"] = username;
+		
+		xhr.send(JSON.stringify(data));
+	}
+</script>
+</html>

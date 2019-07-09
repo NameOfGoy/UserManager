@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>机器人</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <style>
+        body {
+            width: 1210px;
+            margin: 0 auto;
+        }
+        #robot {
+            width: 100%;
+        }
+        /*导航栏*/
+
+        .login-button {
+            float: right!important;
+        }
+        .login-button a {
+            color: #525252;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #409EFF;
+        }
+
+        .nav > .login-button > a:hover,
+        .nav > .login-button > a:focus {
+            text-decoration: none;
+            background-color: #fff;
+            border: 1px solid transparent;
+            border-bottom: #eeeeee;
+            color: #0f71ff;
+        }
+        .nav > li > a:hover,
+        .nav > li > a:focus {
+            text-decoration: none;
+            background-color: #ffffff;
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: #d80b01;
+        }
+        .current-active {
+            color: #d80b01;
+        }
+        .username {
+            color: #0f71ff;
+        }
+        .logout {
+            color: #d80b01;
+            font-size: 14px;
+        }
+        .line-icon {
+            display: inline-block;
+            height: 10px;
+            width: 2px;
+            background-color: #cccccc;
+            margin: 0 10px;
+        }
+        .robot-area {
+            width: 100%;
+            position: relative;
+        }
+        .robot-img {
+            height: 300px;
+            width: 200px;
+            position: absolute;
+            top: 100px;
+            left: 400px;
+            z-index: 2;
+        }
+        audio {
+            position: absolute;
+            top: 90px;
+            left: 400px;
+        }
+        /*消息样式*/
+        .msg-item {
+            padding: 8px;
+            clear: both;
+            position: absolute;
+            top: 105px;
+            left: 600px;
+        }
+
+        .msg-item .mui-item-clear {
+            clear: both;
+        }
+
+        .msg-item .msg-content {
+            display: inline-block;
+            border-radius: 5px;
+            border: solid 1px #d3d3d3;
+            background-color: #2AC845;
+            color: #333;
+            padding: 8px;
+            vertical-align: top;
+            font-size: 15px;
+            position: relative;
+            margin: 0px 8px;
+            max-width: 150px;
+            min-width: 35px;
+            float: left;
+        }
+
+        .msg-item .msg-content .msg-content-inner {
+            overflow-x: hidden;
+        }
+
+        .msg-item .msg-content .msg-content-arrow {
+            position: absolute;
+            border: solid 1px #d3d3d3;
+            border-right: none;
+            border-top: none;
+            background-color: #2AC845;
+            width: 10px;
+            height: 10px;
+            left: -5px;
+            top: 12px;
+            -webkit-transform: rotateZ(45deg);
+            transform: rotateZ(45deg);
+        }
+
+        .msg-item-self .msg-content {
+            float: right;
+        }
+
+        .msg-item-self .msg-content .msg-content-arrow {
+            left: auto;
+            right: -5px;
+            -webkit-transform: rotateZ(225deg);
+            transform: rotateZ(225deg);
+        }
+
+        .msg-item-self .msg-content,
+        .msg-item-self .msg-content .msg-content-arrow {
+            background-color: #4CD964;
+            color: #fff;
+            border-color: #2AC845;
+        }
+        .button-form {
+            position: absolute;
+            top: 405px;
+            left: 400px;
+        }
+        .button-form>button {
+            width: 70px;
+            height: 36px;
+            background-color: #175bff;
+            color: white;
+            text-align: center;
+            line-height: 36px;
+            border-radius: 5px;
+            margin-right: 10px;
+            border: none;
+        }
+        .button-form>button:focus {
+            background-color: #ff1241;
+        }
+        .ask-form {
+            width: 400px;
+            position: absolute;
+            top: 30px;
+            left: 300px;
+        }
+    </style>
+    <script language="JavaScript">		
+		 
+	    function setAudio(){
+			var random = Math.random();
+			var username = '${userSession.username}';
+			var path = 'wav/'+username+'/response.wav?ranparam='+random;
+			document.getElementById('say_audio').src=path;
+			console.log("username = "+username);
+		}			
+		window.onload=function(){setAudio();}
+		</script> 
+</head>
+<body>
+<div id="robot">
+    <header id="header">
+        <nav>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false" href="../index.html">首页</a>
+                </li>
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle current-active" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">机器人</a>
+                </li>
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false" href="PersonInfo.html">完善信息</a>
+                </li>
+                <li class="login-button">
+                    <a role="button"><span class="glyphicon glyphicon-pencil"></span>&nbsp;注册</a>
+                </li>
+                <li class="login-button">
+                    <a v-if='username'  role="button" href="login.html">欢迎您，&nbsp;<span class="username"></span><span class="line-icon"></span><span class="logout">[退出]</span></a>
+                    <a v-else role="button" href="login.html"><span class="glyphicon glyphicon-user"></span>&nbsp;登录</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="robot-area">
+        <form class="form-horizontal ask-form" action="" method="post">
+            <div class="form-group">
+                <label for="question" class="col-sm-3 control-label">提问：</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" name="question" id="question">
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-info question-btn">提交</button>
+                </div>
+            </div>
+        </form>
+        <img class="robot-img" src="../images/robot.jpg" alt="">
+        <audio controls autoplay id="say_audio"></audio><!-- 播放器在此2 -->
+        <div class="msg-item" v-if="say">
+            <div class="msg-content">
+                <div class="msg-content-inner">
+                    <div>{{say}}</div>
+                </div>
+                <div class="msg-content-arrow"></div>
+            </div>
+            <div class="mui-item-clear"></div>
+        </div>
+        <form action="" method="post" onsubmit="return uploadAudio();">
+        <div class="button-form">
+            <button @click="record" type="button" onclick="startRecording()">Record</button>
+            <button @click="stop" type="button" onclick="stopRecording()">Stop</button>
+      <!--     <button @click="play" onclick="playRecording()">播放</button>        -->   
+           	<button @click="submit" type="submit">提交</button>             	
+        </div>
+        </form>
+    </div>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.8/vue.min.js"></script>
+<script type="text/javascript" src="HZRecorder.js"></script>
+<script type="text/javascript">
+	var x = '${answer}';
+	//var y = x.split("");
+    var Robot = new Vue({
+        el:'#robot',
+        data: {
+            //speak: ['主','人','您','好','!','我','是','图','灵','机','器','人','。','请','问','有','什','么','可','以','帮','到','您','吗','。'],
+            speak: [x],
+            say:'',
+            count: 0,
+            timer:'',
+            username: ''
+        },
+        methods: {
+            init: function () {
+            	this.username = '${userSession.personname}';
+                Robot.count = 0;
+                Robot.timer = setInterval(function () {
+                    if(Robot.count<Robot.speak.length){
+                        Robot.say = Robot.say+Robot.speak[Robot.count];
+                        Robot.count++; 
+                    }else{
+                        clearInterval(Robot.timer);
+                    }
+                },300)
+            },//init方法在这里结束
+            record: function () {
+                Robot.say = '';
+                Robot.speak = ['主','人','!','请','开','始','您','的','录','音','表','演','。'];
+                clearInterval(Robot.timer);
+                Robot.count = 0;
+                Robot.init();
+            },
+            stop: function () {
+                Robot.say = '';
+                Robot.speak = ['主','人','!','为','什','么','要','停','止','录','音','呢','。'];
+                //Robot.speak = '${answer}';
+                clearInterval(Robot.timer);
+                Robot.count = 0;
+                Robot.init();
+            },
+            play: function () {
+                Robot.say = '';
+                Robot.speak = ['wo~','主','人','的','声','音','实','在','是','太','好','听','了','！'];
+                clearInterval(Robot.timer);
+                Robot.count = 0;
+                Robot.init();
+            },
+            submit: function () {
+                Robot.say = '';
+                Robot.speak = ['我','要','把','主','人','的','声','音','分','享','出','去','！','因','为','主','人','的','声','音','实','在','太','性','感','了','！'];
+                //while()
+               //Robot.speak = '${answer}'
+                clearInterval(Robot.timer);
+                Robot.count = 0;
+                Robot.init();
+            }
+        }
+    });
+    Robot.init();
+</script>
+
+<script>
+		var start = 1;//1为可点，0为不可点
+		var stop = 0;
+		var submit = 0;
+		
+        var recorder;
+        var audio = document.querySelector('audio');
+        function startRecording() {
+        	if(start == 1)
+        	{    
+        		HZRecorder.get(function (rec) {
+	                recorder = rec;
+	                recorder.start();
+	            });
+        		start = 0;//record不可点
+				stop = 1;//可点
+        	}
+        	else
+        		alert("已经在录音中...");
+        }
+        function stopRecording() {
+        	if(stop == 1)
+        	{
+        		recorder.stop();
+        		start = 1;
+				stop = 0;
+				submit = 1;
+        	}
+        	else
+				alert("请先点击record录音...");
+            
+        }
+        function playRecording() {
+            recorder.play(audio);
+        }
+        function uploadAudio() {
+        	if(submit == 1)
+        	{
+        		recorder.upload("../UploadVideoServlet.do", function (state, e) {               
+                });
+        		submit = 0;
+        		return true;
+        	}
+        	else
+        		alert("请完成录音后才提交...");
+        		return false;
+        	
+        }
+
+    </script>
+</html>

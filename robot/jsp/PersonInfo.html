@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>信息完善页面</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <style>
+        html,body {
+            width: 100%;
+            height: 100%;
+        }
+        #background {
+            width: 100%;
+            background: url("../img/bg@2x.png") no-repeat;
+            position: relative;
+        }
+        .information-icon {
+            width: 740px;
+            height: 400px;
+            background: url("../img/login-icon.png") no-repeat;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -370px;
+            margin-top: -200px;
+        }
+        h1 {
+            font-weight: 700;
+            color: #2761A5;
+            font-family: '黑体';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -240px;
+            margin-top: 40px;
+        }
+        .information-input {
+            width: 370px;
+            height: 400px;
+            float: right;
+            position: relative;
+        }
+        .go-icon {
+            display: inline-block;
+            width: 70px;
+            height: 39px;
+            background: url("../img/go-login.png");
+            background-size: contain;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: 114px;
+            margin-top: -190px;
+            color: white;
+            text-align: center;
+            line-height: 39px;
+            cursor: pointer;
+        }
+        .information-form {
+            width: 300px;
+            height: 200px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-top: -140px;
+            margin-left: -150px;
+        }
+        .login-remember {
+            color: white;
+        }
+        .information-btn {
+            /*margin-top: 10px;*/
+            width: 217.5px;
+        }
+        .control-label {
+            padding: 0;
+            padding-top: 10px;
+            font-size: 14px;
+            color: white;
+        }
+        .form-control {
+            /*margin-top: 5px;*/
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            border: none;
+            padding-left: 10px;
+            color: white;
+        }
+        .form-control1 {
+            color: black;
+        }
+        .form-size{
+	        color:#FFFFE0;
+	        font-size:15px;
+        }
+    </style>
+	<script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<div>
+    <div id="background">
+        <div class="information-icon">
+            <h1>信息完善</h1>
+            <div class="information-input" id="personinfo">
+                <a class="go-icon" href="../index.html">首页</a>
+                <form class="form-horizontal information-form" >
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">账号：</label>
+                        <div class="col-sm-9">
+                         <input type="text" class="form-control form-control1" name="loginid" v-model="loginid" readonly="readonly">                        
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">用户名：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="username" id="username" v-model="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">生日：</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="birthday" id="birthday" v-model="birthday">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" >性别：</label>
+                        <div class="col-sm-4 radio">
+                            <label>
+                                <input type="radio" name="sex" value="male">男
+                            </label>
+                        </div>
+                        <div class="col-sm-4 radio">
+                            <label>
+                                <input type="radio" name="sex" value="female">女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">邮箱：</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" name="email" id="email" v-model="email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">电话：</label>
+                        <div class="col-sm-9">
+                            <input type="tel" class="form-control" name="tel" id="tel" v-model="phonenum">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <button type="button" class="btn btn-info information-btn" onclick="checkForm()">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.8/vue.min.js"></script>
+<script type="text/javascript">
+    window.onload = function () {
+    	/* var flag = '${msg_save}';
+		if(flag == "success")
+			alert("保存成功！！"); */
+        //初始化背景图片高度
+        document.getElementById('background').style.height = document.body.clientHeight + 'px';	
+		var flag = '${msg_save}';
+		if(flag == "success")
+			setTimeout("alert('保存成功！！')",500);
+		
+		getuserinfo();
+		
+    }
+    
+    function checkForm(){
+    	// 校验密码:
+    	// 获得密码框的值:
+    	var password = document.getElementById("username").value;
+    	if(password == null || password == ''){
+    		alert("用户名不能为空!");
+    		return false;
+    	}		
+    	modify(); 
+    }
+	
+	function modify(){
+		var xhr = new XMLHttpRequest();
+		xhr.open("post","http://193.112.49.177:8088/ModifyUserinfo");
+		xhr.setRequestHeader("token",localStorage.getItem("token"));
+		xhr.setRequestHeader("Content-Type","application/json;charset=UTF-8");
+		xhr.onreadystatechange = function() {
+              if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                  var obj = JSON.parse(xhr.responseText);
+				  if (obj.response.Code != 1){
+					console.log("errcode :"+obj.response.Code);
+					alert(obj.response.Message);
+					return false;
+				  }	else if (obj.response.Code == 1) {					
+					alert(obj.response.Message);
+					//window.location.href="../jsp/personinfo.html";
+					return true;
+				  }
+			  }
+		}
+		var data = {};
+		data["username"] = document.getElementById("username").value;
+		data["birthday"] = document.getElementById("birthday").value;
+		data["sex"] = $("input[name='sex']:checked").val();
+		data["email"] = document.getElementById("email").value;
+		data["phonenum"] = document.getElementById("tel").value;
+		
+		xhr.send(JSON.stringify(data));
+	}
+	
+	function getuserinfo(){
+		/*
+			ajax对象成员：
+				responseText ： 以字符串接受服务器返回的信息
+			
+			方法：
+				open()  创建http请求
+				send()	发送http请求
+		*/
+		
+		//创建ajax对象，用以对服务器访问		
+		var xhr = new XMLHttpRequest();
+		//创建新的http请求，("method","url","同步/异步(不写默认异步)")
+		xhr.open("get","http://193.112.49.177:8088/Userinfo");
+		xhr.setRequestHeader("token",localStorage.getItem("token"));
+		xhr.onreadystatechange = function() {//Call a function when the state changes.
+              if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {//xhr.readyState == 4等价于XMLHttpRequest.DONE
+                  // 请求结束后,在此处写处理代码
+                  var obj = JSON.parse(xhr.responseText);
+				  if (obj.response.Code != 1){
+					console.log("errcode :"+obj.response.Code);
+					alert(obj.response.Message);
+				  }	else if (obj.response.Code == 1) {					
+					Index.setloginid(obj.response.Data.Loginid);
+					Index.setusername(obj.response.Data.Username);
+					Index.setbirthday(obj.response.Data.Birthday);
+					Index.setsex(obj.response.Data.Sex);
+					Index.setemail(obj.response.Data.Email);
+					Index.setphonenum(obj.response.Data.Phonenum);
+					if(Index.$data.sex == 'male'){
+						$('input:radio').eq(0).attr('checked', 'true'); //设置第一个radio值默认被选中
+					}else if(Index.$data.sex == 'female'){
+						$('input:radio').eq(1).attr('checked', 'true');
+					}else {
+
+					}
+				  }
+			  }
+		}
+		// 发送请求，(post填入请求数据，get填入null)
+		xhr.send(null);
+		//console.log(xhr.responseText);
+	}
+	
+	var Index = new Vue({
+		el:'#personinfo',
+		data: {
+			loginid:'',
+			username: '',
+			birthday: '',
+			sex: '',
+			email: '',
+			phonenum: ''
+		},
+		methods: {
+			setloginid:function(loginid){
+				this.loginid = loginid;
+			},
+			setusername: function(username){
+				this.username = username;
+			},
+			setbirthday:function(birthday){
+				this.birthday = birthday;
+			},
+			setsex:function(sex){
+				this.sex = sex;
+			},
+			setemail:function(email){
+				this.email = email;
+			},
+			setphonenum:function(phonenum){
+				this.phonenum = phonenum;
+			}
+		}
+	});
+</script>
+<script type="text/javascript">
+	document.onkeydown=keyListener;
+    function keyListener(e){
+    // 当按下回车键，执行我们的代码
+	 if(e.keyCode == 13){
+	  checkForm();
+     }
+	}
+</script>
+</html>
