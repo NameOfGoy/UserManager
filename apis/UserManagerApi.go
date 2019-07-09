@@ -30,12 +30,12 @@ func UserRegister(c *gin.Context) {
 		Sex string				`json:"sex"`
 		Address string			`json:"address"`
 		Email string      		`json:"email"`
-		PhoneNum string			`json:"phoneNum"`
+		PhoneNum string			`json:"phonenum"`
 	}{}
 	err := c.ShouldBind(&registinfo)  // 绑定json
 	if  err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_JSONBIND_FAILED_CODE,
 				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
 			},
@@ -47,7 +47,7 @@ func UserRegister(c *gin.Context) {
 	err = check.RegistParamCheck(&registinfo)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -75,7 +75,7 @@ func UserRegister(c *gin.Context) {
 	err = models.RegistProcedure(&user,&userinfo)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -99,7 +99,7 @@ func UserLogin(c *gin.Context) {
 	err := c.ShouldBind(&logininfo)
 	if  err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_JSONBIND_FAILED_CODE,
 				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
 			},
@@ -118,14 +118,14 @@ func UserLogin(c *gin.Context) {
 	user2,err := user.GetUser()
 	if  err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
 	// 对比密码
 	if user.Password != user2.Password {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_USER_WRONGPASSWORD_CODE,
 				Message : e.ERROR_USER_WRONGPASSWORD_MESSAGE,
 			},
@@ -137,7 +137,7 @@ func UserLogin(c *gin.Context) {
 	token,err := generateToken(c,user)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -146,7 +146,7 @@ func UserLogin(c *gin.Context) {
 	_,err = db.Conn.Do("SET",user.Loginid,token,"EX","3600") // key:登录名  value : token
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_INSERT_REDIS_KEY_CODE,
 				Message : e.ERROR_INSERT_REDIS_KEY_MESSAGE,
 			},
@@ -169,7 +169,7 @@ func ExitLogin(c *gin.Context) {
 	claims,err := check.CheckToken(c)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -177,7 +177,7 @@ func ExitLogin(c *gin.Context) {
 	_,err = db.Conn.Do("DEL", claims.ID)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_DELETE_REDIS_KEY_CODE,
 				Message : e.ERROR_DELETE_REDIS_KEY_MESSAGE,
 			},
@@ -224,7 +224,7 @@ func ModifyPassword(c *gin.Context){
 	claims,err := check.CheckToken(c)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -236,7 +236,7 @@ func ModifyPassword(c *gin.Context){
 	err = c.ShouldBind(&oldnewpassword)
 	if  err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_JSONBIND_FAILED_CODE,
 				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
 			},
@@ -250,14 +250,14 @@ func ModifyPassword(c *gin.Context){
 	user,err = user.GetUser()
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
 	log.Println(user)
 	if user.Password != oldnewpassword.Oldpassword {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_USER_WRONGPASSWORD_CODE,
 				Message : e.ERROR_USER_WRONGPASSWORD_MESSAGE,
 			},
@@ -268,7 +268,7 @@ func ModifyPassword(c *gin.Context){
 	err = user.UpdateUser()  //更新
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -282,11 +282,12 @@ func ModifyPassword(c *gin.Context){
 }
 
 func ModifyUserinfo(c *gin.Context){
+
 	//检查token是否合法
 	claims,err := check.CheckToken(c)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -294,13 +295,14 @@ func ModifyUserinfo(c *gin.Context){
 	err = c.ShouldBind(&userinfo)
 	if  err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_JSONBIND_FAILED_CODE,
 				Message : e.ERROR_JSONBIND_FAILED_MESSAGE,
 			},
 		})
 		return
 	}
+	log.Println(userinfo)
 	//根据token存储的登陆账号，获取该账号对应的userid，然后根据userid更新表
 	user := models.User{
 		Loginid : claims.ID,
@@ -308,16 +310,15 @@ func ModifyUserinfo(c *gin.Context){
 	user,err = user.GetUser()
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
 	userinfo.Userid = user.Userid
-	log.Println(userinfo)
 	err = userinfo.ModifyUserinfo()
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -331,11 +332,12 @@ func ModifyUserinfo(c *gin.Context){
 }
 
 func GetUserinfo(c *gin.Context) {
+
 	//检查token是否合法
 	claims,err := check.CheckToken(c)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -346,7 +348,7 @@ func GetUserinfo(c *gin.Context) {
 	user,err = user.GetUser()
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
@@ -356,16 +358,35 @@ func GetUserinfo(c *gin.Context) {
 	userinfo,err = userinfo.GetUserinfo()
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
 	// 成功
+	remix := struct{
+		Loginid string
+		Userid string
+		Username string
+		Birthday string
+		Sex string
+		Address string
+		Email string
+		Phonenum string
+	}{
+		Loginid : user.Loginid,
+		Userid : userinfo.Userid,
+		Username : userinfo.Username,
+		Birthday : userinfo.Birthday,
+		Sex : userinfo.Sex,
+		Address : userinfo.Address,
+		Email : userinfo.Email,
+		Phonenum : userinfo.Phonenum,
+	}
 	c.JSON(http.StatusOK,gin.H{
 		"response" : &models.ResponseSet{
 			Code : 1,
 			Message : "获取用户信息成功",
-			Data : &userinfo,
+			Data : &remix,
 		},
 	})
 }
@@ -378,14 +399,14 @@ func GetUser(c *gin.Context) {
 	u,err := user.GetUser()    // 调用查询方法
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err,
+			"response" : &err,
 		})
 		return
 	}
 	userstr,err := json.Marshal(u) // 结构体序列化
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : &e.Myerror{
+			"response" : &e.Myerror{
 				Code : e.ERROR_STRUCT_TO_STRING_CODE,
 				Message : e.ERROR_STRUCT_TO_STRING_MESSAGE,
 			},
@@ -408,7 +429,7 @@ func GetDataByTime(c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{
             "status": -1,
             "msg":    "token验证失败",
-            "err":   err.Error(),
+            "response":   err.Error(),
 		})
 		return
 	}
@@ -436,7 +457,7 @@ func GetToken(c *gin.Context) {
 	token, err := j.CreateToken(StandardClaims) // 取得token
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
-			"err" : err.Error(),
+			"response" : err.Error(),
 			"message" : "生成token失败",
 		})
 		return

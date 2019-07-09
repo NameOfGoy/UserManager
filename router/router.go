@@ -3,10 +3,14 @@ import (
     "github.com/gin-gonic/gin"
     ."UserManager/apis"
     "UserManager/util/jwt"
+    "UserManager/util/cors"
 )
 func InitRouter() *gin.Engine {
     router := gin.Default()
-    //IndexApi为一个Handler
+    
+    // 使用跨域中间件，解决复杂跨域问题。浏览器会发两次请求，第一次是option
+    router.Use(cors.Cors())
+
     router.GET("/", Index)
     router.POST("/Register",UserRegister)
     router.POST("/Login",UserLogin)

@@ -9,13 +9,13 @@ import(
 )
 
 type Userinfo struct {
-	Userid       string    `xorm:"not null pk VARCHAR(100)"`
-	Username     string    `xorm:"not null VARCHAR(255)"`
-	Birthday     string    `xorm:"VARCHAR(255)"`
-	Sex          string    `xorm:"VARCHAR(255)"`
-	Address      string    `xorm:"VARCHAR(255)"`
-	Email        string    `xorm:"VARCHAR(255)"`
-	Phonenum     string    `xorm:"VARCHAR(20)"`
+	Userid       string    `json:"userid" xorm:"not null pk VARCHAR(100)"`
+	Username     string    `json:"username" xorm:"not null VARCHAR(255)"`
+	Birthday     string    `json:"birthday" xorm:"VARCHAR(255)"`
+	Sex          string    `json:"sex" xorm:"VARCHAR(255)"`
+	Address      string    `json:"address" xorm:"VARCHAR(255)"`
+	Email        string    `json:"email" xorm:"VARCHAR(255)"`
+	Phonenum     string    `json:"phonenum" xorm:"VARCHAR(20)"`
 	Createtime   time.Time `xorm:"TIMESTAMP(6)"`
 	Modifiedtime time.Time `xorm:"TIMESTAMP(6)"`
 }
